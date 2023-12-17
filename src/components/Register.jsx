@@ -1,0 +1,53 @@
+import axios from 'axios'
+import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import {Link, useNavigate} from "react-router-dom"
+const Login = () => {
+    const [details,setDetails]=useState({
+        name:undefined,
+        email:undefined,
+        password:undefined
+    })
+    const navigate=useNavigate()
+    const {loading,error,user} =useSelector((state)=>state.second)
+    const dispatch=useDispatch()
+
+    const handleChange =(e)=>{
+        setDetails(prev=>({...prev,[e.target.id]:e.target.value}))
+    }
+    const handleClick =async (e)=>{
+        e.preventDefault()
+        dispatch({type:'RegisterStart'})
+        try{
+            let res=await axios.post('https://booking-app-9q67.onrender.com/api/auth/register',details)
+            dispatch({type:'RegisterFinish',payload:res.data})
+            navigate("/")
+        }
+        catch(err){
+            dispatch({type:'RegisterFailed',payload:err.response.data})
+        }
+
+    }
+
+  return (
+    <div className='bg-black text-white h-100vh flex justify-center items-center'>
+        <div className='bg-black border border-disco  flex flex-col gap-5 py-4 px-10 rounded-md' >
+            <h1 className='text-center text-2xl'>Sign In</h1>
+        <input className='bg-black border border-disco outline-none p-2' type="text" placeholder='Name' id='name' onChange={handleChange}/>
+        <input className='bg-black border border-disco outline-none p-2' type="email" placeholder='Email' id='email' onChange={handleChange}/>
+        <input className='bg-black border border-disco outline-none p-2' type="password" placeholder='Password' id='password' onChange={handleChange} />
+        <button disabled={loading} className='p-3 w-full border border-disco hover:bg-disco' onClick={handleClick}>Search</button>
+        <div className=' w-full flex flex-row justify-end gap-2'>
+        <span>Existing User? {''}</span>
+            <button className=' hover:text-disco'>
+                <Link to={"/login"}>Sign up</Link>
+             </button>
+        </div>
+        {error  && <span className='text-red-500'>{error.message}</span>}
+        
+        </div>
+    </div>
+  )
+}
+
+export default Login
